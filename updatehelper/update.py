@@ -136,25 +136,32 @@ def update_init():
     for item in e:
         name = os.path.split(item)[1]
         path = r'newest\{}'.format(name)
-        shutil.move(item, path)
+        shutil.copy(item, path)
+    if os.path.exists('assets'):
+        shutil.rmtree('assets')
+    shutil.copytree(r"flairstuffs\flair-selector-master\assets", 'assets')
+    for item in os.scandir('newest'):
+        img = Image.open(item.path)
+        img = img.convert('RGBA')
+        img = img.resize((80,80), Image.LANCZOS)
+        img.save(os.path.join('images', item.name))
+        img = img.resize((60,60), Image.LANCZOS)
+        img.save(os.path.join('assets', item.name))
     start()
     with open('index.html', 'wb') as f:
         f.write(urlopen('https://raw.githubusercontent.com/H4CKY54CK/flair-selector/master/index.html').read())
     update_html()
-    if os.path.exists('assets'):
-        shutil.rmtree('assets')
-    shutil.copytree(r"flairstuffs\flair-selector-master\assets", 'assets')
-    for item in os.scandir('images'):
-        if item.name not in os.listdir('assets'):
-            if item.name not in EXC2:
-                with Image.open(item.path) as f:
-                    img = f.convert('RGBA')
-                    img = img.resize((60,60), Image.LANCZOS)
-                    path = os.path.join('assets', item.name)
-                    img.save(path)
-            else:
-                path = os.path.join('assets', item.name)
-                shutil.copy(item.path, path)
+    # for item in os.scandir('images'):
+    #     if item.name not in os.listdir('assets'):
+    #         if item.name not in EXC2:
+    #             with Image.open(item.path) as f:
+    #                 img = f.convert('RGBA')
+    #                 img = img.resize((60,60), Image.LANCZOS)
+    #                 path = os.path.join('assets', item.name)
+    #                 img.save(path)
+    #         else:
+    #             path = os.path.join('assets', item.name)
+    #             shutil.copy(item.path, path)
     # for item in tqdm(os.scandir('assets'), total=len(os.listdir('assets'))):
     #     if item.name in EXC2:
     #         continue
