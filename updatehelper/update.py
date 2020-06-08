@@ -197,7 +197,7 @@ def update_bot():
     json.dump(d, open('f.json','w'),indent=4)
     current = os.getcwd()
     dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'reddit-flair-bot')
-    mergefolders(current,dest)
+    shutil.copy('f.json',os.path.join(dest,'flairs.json'))
     os.chdir(dest)
     os.system('git add .')
     os.system('git commit -m "update"')
