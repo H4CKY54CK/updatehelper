@@ -121,6 +121,8 @@ def update(args=None):
     os.system('git add .')
     os.system('git commit -m "update"')
     os.system('git push origin master')
+    os.chdir(current)
+    os.system('spriteit flairs -xy 40 40 -u -S=default')
 
 
 def mergefolders(root_src_dir, root_dst_dir):
@@ -191,7 +193,7 @@ def update_bot():
     d = {}
     for folder in os.scandir(images):
         for image in os.scandir(folder.path):
-            k = f"{image.name.replace('.png','').replace('_4','')}"
+            k = f"{image.name.replace('.png','')}"
             v = f"{folder.name}-{image.name.replace('.png','').replace('_4','')}"
             d.update({k:v})
     json.dump(d, open('f.json','w'),indent=4)
