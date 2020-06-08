@@ -112,7 +112,6 @@ def start():
 def update(args=None):
     if args.task == 'all':
         update_init()
-    update_bot()
     current = os.getcwd()
     dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'flair-selector')
     mergefolders(current, dest)
@@ -128,16 +127,17 @@ def update(args=None):
     imgs = []
     for item in os.scandir('flairs'):
         if item.is_dir():
-            for item in os.scandir(item.path):
-                imgs.append(item.name)
+            for img in os.scandir(item.path):
+                imgs.append(img.name)
     for item in os.scandir('256'):
-        if item.name not in imgs:
+        if item.name not in imgs and item.name not in EXCLUDED:
             if item.name.endswith('_4.png'):
                 shutil.copy(item.path, os.path.join(ten, item.name))
             else:
                 shutil.copy(item.path, os.path.join(nine, item.name))
 
     os.system('spriteit flairs -xy 40 40 -u -S=default')
+    update_bot()
 
 
 def mergefolders(root_src_dir, root_dst_dir):
