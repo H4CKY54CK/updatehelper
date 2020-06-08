@@ -5,6 +5,7 @@ import shutil
 import os
 from PIL import Image
 from tqdm import tqdm
+import json
 
 EXC2 = [
     'back_circle.png',
@@ -111,7 +112,8 @@ def start():
 def update(args=None):
     if args.task == 'all':
         update_init()
-    current = os.path.dirname(os.getcwd())    
+    update_bot()
+    current = os.path.dirname(os.getcwd())
     dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'flair-selector')
     mergefolders(current, dest)
     print("Folders merged")
@@ -178,7 +180,6 @@ def update_init():
     os.remove('page.txt')
     shutil.rmtree('flairstuffs')
 
-    update_bot()
 
 def update_bot():
     data = json.load(urlopen("https://raw.githubusercontent.com/H4CKY54CK/flair-selector/master/flairs.json"))
@@ -186,8 +187,23 @@ def update_bot():
     wgetit(uh, 'updatehelper.zip')
     unarchit('updatehelper.zip')
     uh = 'updatehelper'
-    images = os.path.join(uh, 'images')
-    
+    images = os.path.join(uh, 'flairs')
+    d = {}
+    for folder in os.scandir(images):
+        for image in os.scandir(folder.path):
+            k = f"{image.name.replace('.png','').replace('_4','')}"
+            v = f"{folder.name}-{image.name.replace('.png','').replace('_4','')}"
+            d.update({k:v})
+    json.dump(d, open('f.json','w'),indent=4)
+    current = os.path.dirname(os.getcwd())
+    dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'reddit-flair-bot')
+    mergefolders(current,dest)
+    os.chdir(dest)
+    os.system('git add .')
+    os.system('git commit -m "update"')
+    os.system('git push origin master')
+    os.chdir(current)
+
 
 
 
