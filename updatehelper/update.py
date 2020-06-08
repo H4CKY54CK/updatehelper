@@ -121,6 +121,9 @@ def update(args=None):
     os.system('git commit -m "update"')
     os.system('git push origin master')
     os.chdir(current)
+    uh = "https://github.com/H4CKY54CK/updatehelper/archive/master.zip"
+    wgetit(uh, 'updatehelper.zip')
+    unarchit('updatehelper.zip')
     shutil.copytree(os.path.join(current, 'updatehelper', 'updatehelper-master', 'flairs'), 'flairs')
     nine = os.path.join(current, 'flairs', '9')
     ten = os.path.join(current, 'flairs', '10')
@@ -138,7 +141,6 @@ def update(args=None):
 
     os.system('spriteit flairs -xy 40 40 -u -S=default')
     update_bot()
-
 
 def mergefolders(root_src_dir, root_dst_dir):
     for src_dir, dirs, files in os.walk(root_src_dir):
@@ -200,9 +202,6 @@ def update_init():
 
 def update_bot():
     data = json.load(urlopen("https://raw.githubusercontent.com/H4CKY54CK/flair-selector/master/flairs.json"))
-    uh = "https://github.com/H4CKY54CK/updatehelper/archive/master.zip"
-    wgetit(uh, 'updatehelper.zip')
-    unarchit('updatehelper.zip')
     uh = 'updatehelper'
     images = os.path.join(uh, 'updatehelper-master', 'flairs')
     d = {}
