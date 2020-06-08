@@ -187,7 +187,7 @@ def update_bot():
     wgetit(uh, 'updatehelper.zip')
     unarchit('updatehelper.zip')
     uh = 'updatehelper'
-    images = os.path.join(uh, 'flairs')
+    images = os.path.join(uh, 'updatehelper-master', 'flairs')
     d = {}
     for folder in os.scandir(images):
         for image in os.scandir(folder.path):
