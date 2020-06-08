@@ -111,6 +111,27 @@ def start():
 def update(args=None):
     if args.task == 'all':
         update_init()
+    current = os.path.dirname(os.getcwd())    
+    dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'flair-selector')
+    mergefolders(current, dest)
+    print("Folders merged")
+    os.chdir(dest)
+    os.system('git add .')
+    os.system('git commit -m "update"')
+    os.system('git push origin master')
+
+
+def mergefolders(root_src_dir, root_dst_dir):
+    for src_dir, dirs, files in os.walk(root_src_dir):
+        dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+        for file_ in files:
+            src_file = os.path.join(src_dir, file_)
+            dst_file = os.path.join(dst_dir, file_)
+            if os.path.exists(dst_file):
+                os.remove(dst_file)
+            shutil.copy(src_file, dst_dir)
 
 def update_init():
     url = "https://github.com/H4CKY54CK/flair-selector/archive/master.zip"
@@ -151,29 +172,24 @@ def update_init():
     with open('index.html', 'wb') as f:
         f.write(urlopen('https://raw.githubusercontent.com/H4CKY54CK/flair-selector/master/index.html').read())
     update_html()
-    # for item in os.scandir('images'):
-    #     if item.name not in os.listdir('assets'):
-    #         if item.name not in EXC2:
-    #             with Image.open(item.path) as f:
-    #                 img = f.convert('RGBA')
-    #                 img = img.resize((60,60), Image.LANCZOS)
-    #                 path = os.path.join('assets', item.name)
-    #                 img.save(path)
-    #         else:
-    #             path = os.path.join('assets', item.name)
-    #             shutil.copy(item.path, path)
-    # for item in tqdm(os.scandir('assets'), total=len(os.listdir('assets'))):
-    #     if item.name in EXC2:
-    #         continue
-    #     with Image.open(item.path) as f:
-    #         img = f.convert('RGBA')
-    #         img = img.resize((60,60), Image.LANCZOS)
-    #         img.save(item.path)
     for item in dirs:
         shutil.rmtree(item)
     shutil.rmtree('six')
     os.remove('page.txt')
     shutil.rmtree('flairstuffs')
+
+    update_bot()
+
+def update_bot():
+    data = json.load(urlopen("https://raw.githubusercontent.com/H4CKY54CK/flair-selector/master/flairs.json"))
+    uh = "https://github.com/H4CKY54CK/updatehelper/archive/master.zip"
+    wgetit(uh, 'updatehelper.zip')
+    unarchit('updatehelper.zip')
+    uh = 'updatehelper'
+    images = os.path.join(uh, 'images')
+    
+
+
 
 
 def update_html():
