@@ -209,7 +209,7 @@ def update_bot():
     for folder in os.scandir(images):
         for image in os.scandir(folder.path):
             k = f"{image.name.replace('.png','')}"
-            v = f"{folder.name}-{image.name.replace('.png','').replace('_4','')}"
+            v = f"{folder.name}-{image.name.replace('.png','').replace('_4','').replace('_1','')}"
             d.update({k:v})
     json.dump(d, open('f.json','w'),indent=4)
     current = os.getcwd()
