@@ -113,7 +113,7 @@ def update(args=None):
     if args.task == 'all':
         update_init()
     update_bot()
-    current = os.path.dirname(os.getcwd())
+    current = os.getcwd()
     dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'flair-selector')
     mergefolders(current, dest)
     print("Folders merged")
@@ -195,7 +195,7 @@ def update_bot():
             v = f"{folder.name}-{image.name.replace('.png','').replace('_4','')}"
             d.update({k:v})
     json.dump(d, open('f.json','w'),indent=4)
-    current = os.path.dirname(os.getcwd())
+    current = os.getcwd()
     dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'reddit-flair-bot')
     mergefolders(current,dest)
     os.chdir(dest)
