@@ -203,7 +203,7 @@ def update_init():
 def update_bot():
     data = json.load(urlopen("https://raw.githubusercontent.com/H4CKY54CK/flair-selector/master/flairs.json"))
     uh = 'updatehelper'
-    images = os.path.join(uh, 'updatehelper-master', 'flairs')
+    images = os.path.join('flairs')
     d = {}
     for folder in os.scandir(images):
         for image in os.scandir(folder.path):
