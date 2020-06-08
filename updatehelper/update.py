@@ -122,6 +122,20 @@ def update(args=None):
     os.system('git commit -m "update"')
     os.system('git push origin master')
     os.chdir(current)
+    nine = os.path.join(current, 'flairs', '9')
+    ten = os.path.join(current, 'flairs', '10')
+    imgs = []
+    for item in os.scandir('flairs'):
+        if item.is_dir():
+            for item in os.scandir(item.path):
+                imgs.append(item.name)
+    for item in os.scandir('256'):
+        if item.name not in imgs:
+            if item.name.endswith('_4.png'):
+                shutil.copy(item.path, os.path.join(ten, item.name))
+            else:
+                shutil.copy(item.path, os.path.join(nine, item.name))
+
     os.system('spriteit flairs -xy 40 40 -u -S=default')
 
 
