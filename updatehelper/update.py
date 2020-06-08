@@ -122,6 +122,7 @@ def update(args=None):
     os.system('git commit -m "update"')
     os.system('git push origin master')
     os.chdir(current)
+    shutil.copytree(os.path.join(current, 'updatehelper', 'updatehelper-master', 'flairs'), 'flairs')
     nine = os.path.join(current, 'flairs', '9')
     ten = os.path.join(current, 'flairs', '10')
     imgs = []
