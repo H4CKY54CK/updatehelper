@@ -122,9 +122,19 @@ def update(args=None):
     if not os.path.exists('256'):
         print("Folder `256` not in current directory... Searching user's folder...")
         shared = os.path.join(os.path.expanduser('~'), 'Nox_share', 'ImageShare', '256')
+        ldshared = os.path.join(os.path.expanduser('~'), 'Documents', 'LDPlayer', 'Pictures', '256')
         if os.path.exists(shared):
             print("Copying folder to current directory...")
             shutil.copytree(shared, '256')
+            found_shared = True
+        elif os.path.exists(ldshared):
+            print("Copying folder to current directory...")
+            shutil.copytree(ldshared, '256')
+            found_shared = True
+        else:
+            found_shared = False
+
+        if found_shared:
             print("Fetching `CCZ_Decrypter.exe`...")
             decrypter = 'CCZ_Decrypter.exe'
             if os.path.exists(decrypter):
@@ -144,6 +154,9 @@ def update(args=None):
             print("Decrypting files...")
             subprocess.run(f"{rd} 256")
             print("Done. Continuing...")
+        else:
+            print("Could not locate the necessary files. Shutting down to avoid errors.")
+            sys.exit()
     update_init()
     current = os.getcwd()
     dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'flair-selector')
@@ -175,10 +188,18 @@ def update(args=None):
         if item.name.endswith('.png'):
             subreddit.stylesheet.upload(item.name.replace('.png', ''), item.path)
             print(f"Uploaded {item.name} as {item.name.replace('.png', '')} in {subreddit.display_name}.")
-    style = os.path.join('sprites', 'stylesheet.css')
-    with open(style) as f:
+    style = subreddit.stylesheet().stylesheet
+    key = '3669320022109'
+    if key not in style:
+        print("Couldn't find `3669320022109` in stylesheet. Shutting down to prevent errors.")
+        sys.exit()
+    style1 = style.split(key)[0]
+    style2 = os.path.join('sprites', 'stylesheet.css')
+    with open(style2) as f:
         data = f.read()
-    subreddit.stylesheet.update(data)
+    data = data.replace(';}', '}').replace(': ', ':').replace('\n', '')
+    style = style1 + key + '\n' + '-------------*/' + '\n' + data
+    subreddit.stylesheet.update(style)
     print(f"Updated stylesheet in {subreddit.display_name}.")
     update_bot()
     update_emojis()
@@ -290,7 +311,7 @@ def update_bot():
             k = f"{image.name.replace('.png','')}"
             v = f"{folder.name}-{image.name.replace('.png','').replace('_4','').replace('_1','')}"
             d.update({k:v})
-    json.dump(d, open('f.json','w'),indent=4)
+    json.dump(d, open('f.json','w'), indent=4)
     current = os.getcwd()
     dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'flair-selector')
     shutil.copy('f.json',os.path.join(dest,'flairs.json'))
