@@ -6,6 +6,8 @@ import os
 from PIL import Image
 from tqdm import tqdm
 import json
+import subprocess
+import praw
 
 EXC2 = [
     'back_circle.png',
@@ -110,17 +112,36 @@ def start():
 
 
 def update(args=None):
-    if args.task == 'all':
-        update_init()
+    if not os.path.exists('256'):
+        print("Folder `256` not in current directory... Searching user's folder...")
+        shared = os.path.join(os.path.expanduser('~'), 'Nox_share', 'ImageShare', '256')
+        if os.path.exists(shared):
+            print("Copying folder to current directory...")
+            shutil.copytree(shared, '256')
+            print("Fetching `CCZ_Decrypter.exe`...")
+            decrypter = 'CCZ_Decrypter.exe'
+            if os.path.exists(decrypter):
+                rd = os.path.abspath(decrypter)
+                print("Found decrypter.")
+            else:
+                found = False
+                for root, dirs, files in os.walk(os.path.expanduser('~')):
+                    for f in files:
+                        if f == decrypter:
+                            print("Found decrypter.")
+                            rd = os.path.join(root, f)
+                            found = True
+                            break
+                    if found:
+                        break
+            print("Decrypting files...")
+            subprocess.run(f"{rd} 256")
+            print("Done. Continuing...")
+    update_init()
     current = os.getcwd()
     dest = os.path.join(os.path.expanduser('~'), 'Documents', 'Github', 'flair-selector')
     mergefolders(current, dest)
     print("Folders merged")
-    # os.chdir(dest)
-    # os.system('git add .')
-    # os.system('git commit -m "update"')
-    # os.system('git push origin master')
-    # os.chdir(current)
     uh = "https://github.com/H4CKY54CK/updatehelper/archive/master.zip"
     wgetit(uh, 'updatehelper.zip')
     unarchit('updatehelper.zip')
@@ -139,8 +160,60 @@ def update(args=None):
             else:
                 shutil.copy(item.path, os.path.join(nine, item.name))
 
-    os.system('spriteit flairs -xy 40 40 -u -S=default')
+    subprocess.run('spriteit flairs -x 40 -y 40')
+    global reddit, subreddit
+    reddit = praw.Reddit('default')
+    subreddit = reddit.subreddit(reddit.config.custom['subreddit'])
+    for item in os.scandir('sprites'):
+        if item.name.endswith('.png'):
+            subreddit.stylesheet.upload(item.name.replace('.png', ''), item.path)
+            print(f"Uploaded {item.name} as {item.name.replace('.png', '')} in {subreddit.display_name}.")
+    style = os.path.join('sprites', 'stylesheet.css')
+    with open(style) as f:
+        data = f.read()
+    subreddit.stylesheet.update(data)
+    print(f"Updated stylesheet in {subreddit.display_name}.")
     update_bot()
+    update_emojis()
+
+def update_emojis():
+    path = 'temporary_emoji_folder'
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    shutil.copytree('flairs', path)
+    paths = [path]
+    files = []
+    while paths:
+        p = paths[0]
+        for item in os.scandir(p):
+            if item.is_dir():
+                paths.append(item.path)
+            elif item.name.lower().endswith('.png'):
+                files.append(item.path)
+        paths.pop(0)
+    print("Resizing images...")
+    for file in tqdm(files):
+        with Image.open(file) as img:
+            img = img.convert('RGBA')
+            img = img.resize((40,40), Image.LANCZOS)
+            img.save(file)
+    print(f"Updating missing emojis in the subreddit {subreddit.display_name}...")
+    emojis = [i for i in subreddit.emoji]
+    tba = []
+    for file in os.scandir(path):
+        if file.is_dir():
+            for img in os.scandir(file.path):
+                parent = os.path.basename(file.path)
+                name = f"{parent}-{os.path.basename(img.path).replace('.png', '').replace('_4', '')}"
+                loc = os.path.abspath(img.path)
+                if any(name.startswith(str(i)) for i in range(8,15)) and name not in emojis:
+                    tba.append((name,loc))
+    for item in tqdm(tba):
+        subreddit.emoji.add(item[0], item[1], post_flair_allowed=False)
+    print("Cleaning up...")
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    print("Emojis have been updated.")
 
 def mergefolders(root_src_dir, root_dst_dir):
     for src_dir, dirs, files in os.walk(root_src_dir):
@@ -268,7 +341,6 @@ def wgetit(url, name):
 def main(argv=None):
     argv = (argv or sys.argv)[1:]
     parser = argparse.ArgumentParser()
-    parser.add_argument('task', type=str)
     parser.set_defaults(func=update)
     args = parser.parse_args(argv)
     args.func(args)
