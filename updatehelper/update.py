@@ -8,6 +8,7 @@ from tqdm import tqdm
 import json
 import subprocess
 import praw
+from misctools import __version__ as miscversion
 
 EXC2 = [
     'back_circle.png',
@@ -112,6 +113,12 @@ def start():
 
 
 def update(args=None):
+    if miscversion != '2.0.1':
+        subprocess.run('pip install https://github.com/h4cky54ck/misctools/archive/master.zip')
+        if subprocess.getoutput('spriteit -V') != 'v2.0.1':
+            print("The automatic install feature has failed. Please upgrade your `misctools` package via `pip install https://github.com/h4cky54ck/misctools/archive/master.zip`")
+            sys.exit()
+
     if not os.path.exists('256'):
         print("Folder `256` not in current directory... Searching user's folder...")
         shared = os.path.join(os.path.expanduser('~'), 'Nox_share', 'ImageShare', '256')
